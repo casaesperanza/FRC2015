@@ -31,9 +31,6 @@ public class Robot extends SampleRobot {
     RobotDrive robotDrive = new RobotDrive(frontLeftController, rearLeftController,
                                             frontRightController, rearRightController);
     
-    // New variable here
-	Talon talonMC9 = new Talon(9);
-    
     // Create new Joystick on ports 1 and 2
     Joystick driverJoystick = new Joystick(0);
     Joystick accessoryJoystick = new Joystick(1);
@@ -86,11 +83,9 @@ public class Robot extends SampleRobot {
           
             // Drive the Robot
             // "This is designed to be directly driven by joystick axes. "
-//            robotDrive.mecanumDrive_Cartesian(scaleJoystickInput(driverJoystick.getX()),
-//                                                scaleJoystickInput(driverJoystick.getY()), 
-//                                                scaleJoystickInput(driverJoystick.getZ()), 0);
-            
-        	talonMC9.set(scaleJoystickInput(driverJoystick.getY()));
+            robotDrive.mecanumDrive_Cartesian(scaleJoystickInput(driverJoystick.getX())/2,
+                                                scaleJoystickInput(driverJoystick.getY())/2, 
+                                                scaleJoystickInput(driverJoystick.getZ())/2, 0);
             
             // Output debug information
         	SmartDashboard.putNumber("driverJoystick.getY()", driverJoystick.getY());
@@ -148,6 +143,8 @@ public class Robot extends SampleRobot {
         if(input < 0) { // Adjust sign to match original input
             adjustedInput = -adjustedInput;
         }
+        
+        ad
         
         return adjustedInput;
     }
