@@ -49,6 +49,9 @@ public class Robot extends SampleRobot {
 	Talon rearLeftController = new Talon(3);
     RobotDrive robotDrive = new RobotDrive(frontLeftController, rearLeftController,
                                             frontRightController, rearRightController);
+    // Create new Joystick on ports 1 and 2
+    Joystick driverJoystick = new Joystick(0);
+    Joystick accessoryJoystick = new Joystick(1);
     
     // Forklift related
     Jaguar forkliftMotorController = new Jaguar(5);
@@ -57,12 +60,6 @@ public class Robot extends SampleRobot {
     DigitalInput forkliftUpperSwitch = new DigitalInput(3);
     DigitalInput pickupItemContactSwitch = new DigitalInput(4);
     
-//    Ultrasonic sonar = new Ultrasonic(4, 5);
-    
-    // Create new Joystick on ports 0 and 1
-    Joystick driverJoystick = new Joystick(0);
-    Joystick accessoryJoystick = new Joystick(1);
-
     boolean robotInitted = false;
     boolean useForklift = false;
     
@@ -84,10 +81,6 @@ public class Robot extends SampleRobot {
         // Ensure all motors are stopped (I don't believe we should have to do this)
         robotDrive.drive(0, 0);
         
-//        sonar.setDistanceUnits(Unit.kMillimeter);
-//        sonar.setAutomaticMode(false);
-//        sonar.setEnabled(true);
-        
         //forkliftEncoder.setDistancePerPulse(distancePerPulse);
 
         robotInitted = true;
@@ -96,6 +89,7 @@ public class Robot extends SampleRobot {
     public void autonomous() {
         // Autonomous here        
     }
+    
     
     /**
      * This function is called once each time the robot enters operator control.
@@ -106,8 +100,10 @@ public class Robot extends SampleRobot {
         if(!robotInitted) {
           System.out.println("Robot not initted? Initting...");
           robotInit();
-          robotInitted = true;            
+          robotInitted = true; 
         }
+        
+        
         
         // While still under operator control and enabled, "mecanum drive" robot,
         // updating motors every 0.0075 second
@@ -120,8 +116,15 @@ public class Robot extends SampleRobot {
             // "This is designed to be directly driven by joystick axes. "
         	// TODO: Limit speed based on holding objects
             robotDrive.mecanumDrive_Cartesian(scaleJoystickInput(driverJoystick.getX())/2,
-                                                scaleJoystickInput(driverJoystick.getY())/2, 
-                                                scaleJoystickInput(driverJoystick.getZ())/4, 0);
+                                                scaleJoystickInput(driverJoystick.getY())/2,
+                                                scaleJoystickInput(driverJoystick.getZ())/4,0);
+        
+            //robotDrive.mecanumDrive_Cartesian(scaleJoystickInput(driverJoystick.getX())/2,       
+           //         scaleJoystickInput(driverJoystick.getY())/2,
+           //         scaleJoystickInput(driverJoystick.getZ())/4, 0);
+
+         
+            
             
             // Forklift Operation
             if(isForkliftAtLowerLimit()) { // Trying to go down and not at lower limit
@@ -146,6 +149,8 @@ public class Robot extends SampleRobot {
 
             }
             
+            
+            
             // When we hit the bottom forklift limit, reset to zero
             if(isForkliftAtLowerLimit()) {
             	forkliftEncoder.reset();
@@ -156,6 +161,8 @@ public class Robot extends SampleRobot {
         	SmartDashboard.putBoolean("isForkliftAtLowerLimit()", isForkliftAtLowerLimit());
         	SmartDashboard.putBoolean("isForkliftAtUpperLimit()", isForkliftAtUpperLimit());
         	SmartDashboard.putBoolean("isInContactWithItem()", isInContactWithItem());
+        	SmartDashboard.putNumber("Timer.getMatchTime()", Timer.getMatchTime());
+        	SmartDashboard.putNumber("Timer.getFPGATimestamp()", Timer.getFPGATimestamp());
 //        	SmartDashboard.putNumber("forkliftMotorController.getRaw()", forkliftMotorController.getRaw());
 //        	if(sonar.isRangeValid()) {
 //        		SmartDashboard.putNumber("Range (in)", sonar.getRangeMM());
@@ -187,6 +194,8 @@ public class Robot extends SampleRobot {
     protected boolean isInContactWithItem() {
     	return !pickupItemContactSwitch.get();
     }
+    
+    
     
     /**
      * This method leverages a heuristic to "efficiently" add a dead zone
